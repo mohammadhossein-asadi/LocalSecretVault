@@ -1,12 +1,16 @@
+<div align="center">
+
 # 🔐 LocalSecretVault
 
-A lightweight, local-first password and developer secrets manager.
+### Lightweight, Local-First Password & Developer Secrets Manager
 
 **No cloud. No account. No telemetry. Just your secrets, encrypted locally.**
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-143%20passing-brightgreen.svg)](#testing)
+[![Tests: 224 Passing](https://img.shields.io/badge/tests-224%20passing-brightgreen.svg)](#testing)
+
+</div>
 
 ---
 
@@ -25,10 +29,14 @@ Most secrets managers require cloud accounts, subscriptions, or always-on server
 ## Features
 
 | Feature | Description |
-|---------|-------------|
+|:--------|:------------|
 | 🔒 **AES-256-GCM Encryption** | Authenticated encryption with Argon2id key derivation |
 | 💻 **CLI & TUI** | Full command-line interface plus interactive terminal UI |
 | 🔑 **Password Generator** | Cryptographically secure, configurable length and character sets |
+| 🧠 **Passphrase Generator** | Diceware-style memorable passphrases (1296-word list) |
+| ⏱️ **TOTP Support** | Store TOTP secrets and generate 2FA codes locally (RFC 6238) |
+| 💪 **Strength Analysis** | Offline password strength scoring with pattern detection |
+| ❤️ **Password Health** | Find weak, reused, and stale passwords across your vault |
 | 📋 **Clipboard Integration** | Cross-platform copy with auto-clear after 30 seconds |
 | 🌐 **.env Import/Export** | Seamlessly work with `.env` files |
 | 🐙 **GitHub Secrets** | Push and pull repository secrets via `gh` CLI |
@@ -104,6 +112,12 @@ localsecretvault get MyApp --field password --copy # Copy to clipboard
 # Edit
 localsecretvault edit MyApp --password "new_password" --username "new_user"
 
+# TOTP support
+localsecretvault add Login --name "AWS" --totp "JBSWY3DPEHPK3PXP"   # Add with TOTP secret
+localsecretvault add Login --name "Google" --gen-totp               # Generate new TOTP secret
+localsecretvault totp AWS                                            # Show current 2FA code
+localsecretvault edit AWS --clear-totp                               # Remove TOTP secret
+
 # Delete
 localsecretvault delete MyApp          # With confirmation
 localsecretvault delete MyApp --yes    # Skip confirmation
@@ -118,7 +132,7 @@ localsecretvault search github                 # Search metadata
 ### Secret Types
 
 | Type | Example Use |
-|------|-------------|
+|:-----|:------------|
 | `Login` | Website accounts, email, SSH |
 | `API Key` | Stripe, AWS, Twilio keys |
 | `Database` | PostgreSQL, MongoDB, Redis |
@@ -135,6 +149,47 @@ localsecretvault generate --length 32           # Custom length
 localsecretvault generate --count 5             # Multiple passwords
 localsecretvault generate --no-ambiguous        # No 0OIl1 characters
 localsecretvault generate --length 64 --copy    # Generate and copy
+```
+
+### Passphrase Generator
+
+```bash
+localsecretvault passphrase                            # 5 words + number
+localsecretvault passphrase --words 7                  # More words, more entropy
+localsecretvault passphrase --capitalize --no-number   # TitleCase words
+localsecretvault passphrase --separator "." --words 4  # Custom separator
+```
+
+### Strength Analysis & Password Health
+
+```bash
+# Analyze any password without storing it
+localsecretvault strength "MyP@ssw0rd123"
+localsecretvault strength                               # Prompts securely (hidden input)
+
+# Full health report: weak, reused, and stale passwords
+localsecretvault health
+```
+
+```text
+Password health report — 4 password(s) across 5 secret(s)
+
+  Weak passwords (1)
+┌──────┬────────┬─────────────────────────────────┐
+│ Name │ Score  │ Issues                          │
+├──────┼────────┼─────────────────────────────────┤
+│ Old  │ 1/4    │ Commonly used password          │
+└──────┴────────┴─────────────────────────────────┘
+  No reused passwords.
+  No stale passwords.
+```
+
+### TOTP (2FA Codes)
+
+```bash
+localsecretvault totp GitHub                  # Show current code with countdown
+localsecretvault totp GitHub --copy           # Copy code to clipboard
+localsecretvault copy GitHub --field totp     # Same via the copy command
 ```
 
 ### .env Integration
@@ -177,18 +232,21 @@ localsecretvault audit
 
 ```
    LocalSecretVault Security Audit
-+-----------------------------------+
-| Check                 | Status    |
-|-----------------------+-----------|
-| Vault encryption      | OK        |
-| Vault integrity       | OK        |
-| File permissions      | OK        |
-| Configuration         | OK        |
-| Telemetry             | Disabled  |
-| Clipboard integration | Available |
-| GitHub CLI             | Available |
-+-----------------------------------+
++-------------------------------------+
+| Check                 | Status      |
+|-----------------------+-------------|
+| Vault encryption      | OK          |
+| Vault integrity       | OK          |
+| File permissions      | OK          |
+| Configuration         | OK          |
+| Telemetry             | Disabled    |
+| Clipboard integration | Available   |
+| Password health       | OK          |
+| GitHub CLI            | Available   |
++-------------------------------------+
 ```
+
+The audit now includes a password-health summary (weak/reused/stale counts) when the vault is unlocked.
 
 ---
 
@@ -201,7 +259,7 @@ localsecretvault tui
 ### Keybindings
 
 | Key | Action |
-|-----|--------|
+|:----|:-------|
 | `q` | Quit |
 | `l` | Lock vault |
 | `a` | Add new secret |
@@ -211,6 +269,7 @@ localsecretvault tui
 | `Enter` | View secret details |
 | `d` | Delete secret |
 | `c` | Copy password |
+| `t` | Show TOTP code |
 
 ---
 
@@ -219,7 +278,7 @@ localsecretvault tui
 ### Cryptography
 
 | Component | Algorithm |
-|-----------|-----------|
+|:----------|:----------|
 | **Key Derivation** | Argon2id (3 iterations, 64 MB memory, 4 threads) |
 | **Encryption** | AES-256-GCM (128-bit authentication tag) |
 | **Salt** | 32 bytes, cryptographically random |
@@ -232,6 +291,7 @@ localsecretvault tui
 - ✅ Wrong passwords produce generic "authentication failed" errors
 - ✅ Atomic file writes prevent corruption from crashes/interruptions
 - ✅ Secrets never printed in CLI output (shown as `********`)
+- ✅ TOTP codes generated locally — no authenticator app required to read them
 - ✅ Clipboard auto-clears after 30 seconds
 - ✅ File permissions enforced on Unix (vault: 600, config: 700)
 - ✅ No network requests, no telemetry, no analytics
@@ -259,7 +319,7 @@ See [SECURITY.md](SECURITY.md) for the complete security documentation.
 The vault (`vault.lsv`) is a single encrypted file — sync it with whatever you already use:
 
 | Method | How |
-|--------|-----|
+|:-------|:----|
 | **Git** | Commit the vault to a private repo |
 | **Syncthing** | Peer-to-peer encrypted sync |
 | **Cloud Storage** | Dropbox, OneDrive, Google Drive |
@@ -275,7 +335,7 @@ The vault (`vault.lsv`) is a single encrypted file — sync it with whatever you
 Vault and config are stored in platform-appropriate locations:
 
 | OS | Path |
-|----|------|
+|:---|:-----|
 | **Linux** | `~/.config/localsecretvault/` |
 | **macOS** | `~/Library/Application Support/localsecretvault/` |
 | **Windows** | `%APPDATA%\localsecretvault\` |
@@ -304,23 +364,28 @@ mypy src/
 ```
 LocalSecretVault/
 ├── src/localsecretvault/
-│   ├── cli/              # Typer CLI (19 commands)
+│   ├── cli/              # Typer CLI (24 commands)
 │   ├── tui/              # Textual terminal UI
 │   ├── crypto/           # Argon2id + AES-256-GCM
 │   ├── models/           # Secret data models (7 types)
-│   ├── vault/            # Vault manager, CRUD, search
+│   ├── vault/            # Vault manager, CRUD, search, health
 │   ├── storage/          # Atomic file I/O
-│   ├── services/         # Generator, .env, backup, GitHub
+│   ├── services/         # Generator, passphrase, TOTP, strength, .env, backup, GitHub
 │   ├── config/           # Platform configuration
 │   └── utils/            # Signal handling
-├── tests/                # 143 tests
-│   ├── test_crypto.py    # 36 tests
-│   ├── test_vault.py     # 31 tests
-│   ├── test_cli.py       # 10 tests
-│   ├── test_generator.py # 25 tests
-│   ├── test_env.py       # 20 tests
-│   ├── test_backup.py    # 11 tests
-│   └── test_security.py  # 12 tests
+├── tests/                # 224 tests
+│   ├── test_crypto.py    # Crypto roundtrips, corruption, format
+│   ├── test_vault.py     # CRUD, search, auto-lock, persistence
+│   ├── test_health.py    # Weak/reused/stale detection, age tracking
+│   ├── test_totp.py      # RFC 6238 vectors, drift, verification
+│   ├── test_strength.py  # Scoring, patterns, entropy
+│   ├── test_passphrase.py # Wordlist, entropy, options
+│   ├── test_cli.py       # Core CLI via Typer test runner
+│   ├── test_cli_features.py # New command tests
+│   ├── test_generator.py # Character classes, entropy
+│   ├── test_env.py       # Parsing, import/export
+│   ├── test_backup.py    # Backups, restore, safety copies
+│   └── test_security.py  # Leakage, permissions, integrity
 ├── pyproject.toml
 ├── SECURITY.md
 ├── LICENSE
@@ -332,7 +397,7 @@ LocalSecretVault/
 ## Testing
 
 ```bash
-pytest                     # Run all 143 tests
+pytest                     # Run all 224 tests
 pytest tests/test_crypto.py  # Crypto tests only
 pytest -v                  # Verbose output
 ```
@@ -344,6 +409,10 @@ pytest -v                  # Verbose output
 - **Generator:** Character classes, entropy, edge cases
 - **.env:** Parsing, import/export, quoted values, special characters
 - **Backup:** Create, restore, corrupted backup rejection, safety backup
+- **TOTP:** RFC 6238 test vectors, time drift, verification, provisioning URIs
+- **Strength:** Pattern detection (sequences, keyboard walks, repeats, dates), entropy, scoring
+- **Passphrase:** Wordlist integrity, entropy math, option combinations
+- **Health:** Weak/reused/stale detection, password age tracking, backward compatibility
 - **Security:** No secret leakage, file permission checks, vault integrity
 
 ---
@@ -351,3 +420,14 @@ pytest -v                  # Verbose output
 ## License
 
 [MIT License](LICENSE) — use it however you want.
+
+---
+
+<div align="center">
+
+**Mohammadhossein Asadi** — Frontend & Full-Stack Engineer
+
+[![GitHub](https://img.shields.io/badge/GitHub-mohammadhossein--asadi-0a0a0a?style=flat-square&logo=github)](https://github.com/mohammadhossein-asadi)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-mohammadhossein--asadi-0a66c2?style=flat-square&logo=linkedin)](https://linkedin.com/in/mohammadhossein-asadi)
+
+</div>
