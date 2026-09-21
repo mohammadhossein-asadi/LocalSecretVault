@@ -64,6 +64,18 @@ pip install -e ".[dev]"
 
 ---
 
+## Screenshots
+
+All captured from the documented CLI output (regenerate with `scripts/make-cli-screenshots.py` in the portfolio repo):
+
+| Vault & secrets | Generators |
+|:---:|:---:|
+| ![Vault and secrets](docs/screenshot-1.png) | ![Password and passphrase generators](docs/screenshot-2.png) |
+| **TOTP (2FA)** | **Health & audit** |
+| ![TOTP codes](docs/screenshot-3.png) | ![Health report and security audit](docs/screenshot-4.png) |
+
+---
+
 ## Quick Start
 
 ```bash
