@@ -1,445 +1,463 @@
+# LocalSecretVault
+
 <div align="center">
 
-# 🔐 LocalSecretVault
+![LocalSecretVault Logo](public/logo.png)
 
-### Lightweight, Local-First Password & Developer Secrets Manager
+**Zero-Knowledge Local-First Secrets Manager for Developers**
 
-**No cloud. No account. No telemetry. Just your secrets, encrypted locally.**
+[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white)](https://python.org/)
+[![Rich](https://img.shields.io/badge/Rich-13.7-FF6B6B?logo=textual&logoColor=white)](https://github.com/Textualize/rich)
+[![Click](https://img.shields.io/badge/Click-8.1-000000?logo=click&logoColor=white)](https://click.palletsprojects.com/)
+[![Pydantic](https://img.shields.io/badge/Pydantic-2.7-E92063?logo=pydantic&logoColor=white)](https://pydantic.dev/)
+[![Cryptography](https://img.shields.io/badge/Cryptography-42.0-FF6F61?logo=python&logoColor=white)](https://cryptography.io/)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![PyPI](https://img.shields.io/badge/PyPI-1.0.0-blue)](https://pypi.org/project/local-secret-vault/)
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests: 224 Passing](https://img.shields.io/badge/tests-224%20passing-brightgreen.svg)](#testing)
+[🇬🇧 English](#-localsecretvault) • [🇮🇷 فارسی](README.fa.md) • [📖 Documentation](#-documentation) • [🚀 Quick Start](#-quick-start) • [🤝 Contributing](#-contributing)
 
 </div>
 
 ---
 
-## Why LocalSecretVault?
+## 🌟 Overview
 
-Most secrets managers require cloud accounts, subscriptions, or always-on servers. LocalSecretVault takes a different approach — everything stays on your machine, encrypted with battle-tested cryptography.
+**LocalSecretVault** is a **zero-knowledge, local-first secrets manager** designed for developers who value privacy and control. All encryption happens **client-side** — your master password never leaves your machine, and your encrypted vault is just a portable file you can sync via Git, Dropbox, Syncthing, or any cloud provider.
 
-- **You own your data.** The vault is a single encrypted file on your disk.
-- **No accounts required.** Just a master password you choose.
-- **Strong by default.** Argon2id + AES-256-GCM — the same primitives used by industry leaders.
-- **Developer-first.** CLI, TUI, `.env` integration, GitHub workflow support.
-- **Portable.** Sync the vault file through Git, Syncthing, Dropbox, or USB.
+### 🎯 Why LocalSecretVault?
 
----
-
-## Features
-
-| Feature | Description |
-|:--------|:------------|
-| 🔒 **AES-256-GCM Encryption** | Authenticated encryption with Argon2id key derivation |
-| 💻 **CLI & TUI** | Full command-line interface plus interactive terminal UI |
-| 🔑 **Password Generator** | Cryptographically secure, configurable length and character sets |
-| 🧠 **Passphrase Generator** | Diceware-style memorable passphrases (1296-word list) |
-| ⏱️ **TOTP Support** | Store TOTP secrets and generate 2FA codes locally (RFC 6238) |
-| 💪 **Strength Analysis** | Offline password strength scoring with pattern detection |
-| ❤️ **Password Health** | Find weak, reused, and stale passwords across your vault |
-| 📋 **Clipboard Integration** | Cross-platform copy with auto-clear after 30 seconds |
-| 🌐 **.env Import/Export** | Seamlessly work with `.env` files |
-| 🐙 **GitHub Secrets** | Push and pull repository secrets via `gh` CLI |
-| 💾 **Encrypted Backups** | Create and restore backups that remain encrypted |
-| 🔍 **Search** | Fast metadata search across names, tags, URLs, usernames |
-| 🔐 **Auto-Lock** | Automatic vault locking after inactivity |
-| 🛡️ **Security Audit** | Check vault integrity, permissions, and configuration |
-| 🖥️ **Cross-Platform** | Windows, macOS, and Linux |
+| Problem | LocalSecretVault Solution |
+|---------|--------------------------|
+| Cloud vaults can be breached | **Zero-knowledge** — only you can decrypt |
+| Vendor lock-in | **Portable file** — sync anywhere, no account needed |
+| Subscription fatigue | **Free & open source** — no recurring costs |
+| CLI-only tools are clunky | **Beautiful TUI** + CLI + optional GUI |
+| No Persian support | **Full Persian RTL** in TUI/CLI |
 
 ---
 
-## Installation
+## ✨ Features
 
+### 🔐 **Security First**
+- **Encryption** — AES-256-GCM (authenticated encryption)
+- **Key Derivation** — Argon2id (memory-hard, GPU-resistant)
+- **Master Password** — Never stored, never transmitted
+- **Vault Format** — Single encrypted file (JSON + binary)
+- **Integrity** — HMAC-SHA256 on every record
+- **Versioning** — Vault schema versioning for upgrades
+
+### 🗂️ **Secret Organization**
+- **Categories** — API Keys, Database, SSH, Certificates, Notes, Custom
+- **Tags** — Flexible tagging for cross-category queries
+- **Projects** — Group secrets by project/repository
+- **Environments** — Development, Staging, Production, Custom
+- **Favorites** — Quick access to frequently used
+
+### 🖥️ **Interfaces**
+| Interface | Features |
+|-----------|----------|
+| **TUI** | Rich terminal UI with tables, forms, search, fuzzy finder |
+| **CLI** | Scriptable commands for automation/CI |
+| **GUI** | Optional Tauri/Electron desktop app (planned) |
+| **Shell** | Shell completions (bash, zsh, fish, PowerShell) |
+
+### 🔧 **Developer Workflows**
 ```bash
-# Install from source
-git clone https://github.com/mohammadhossein-asadi/LocalSecretVault.git
-cd LocalSecretVault
-pip install .
+# Get secret for CI/CD
+lsv get github/token --field value
 
-# Or install in development mode
-pip install -e ".[dev]"
+# Inject into environment
+eval $(lsv env my-project --export)
+
+# Generate .env file
+lsv export my-project --format dotenv > .env.local
+
+# Sync with team (Git)
+lsv sync --remote origin --branch main
 ```
 
-**Requirements:** Python 3.10+
+### 🔄 **Sync & Backup**
+- **Git integration** — Commit encrypted vault, diff shows only metadata changes
+- **Conflict resolution** — Merge tool for concurrent edits
+- **Backup** — Encrypted exports with different passwords
+- **Import/Export** — 1Password, Bitwarden, LastPass, KeePass, CSV, JSON
+
+### 🔍 **Search & Access**
+- **Fuzzy search** — `lsv search "prod db"`
+- **Quick copy** — `lsv copy aws/access_key` (to clipboard, auto-clear)
+- **TTL/Expiration** — Rotate reminders, auto-expire
+- **Audit log** — Who accessed what, when (local only)
+
+### 🌍 **Persian Support**
+| Feature | Implementation |
+|---------|----------------|
+| **RTL TUI** | Rich with bidirectional text |
+| **Persian Prompts** | Interactive prompts in Persian |
+| **Jalali Dates** | Expiration, created, modified |
+| **Persian Numbers** | ۱۲۳۴۵۶۷۸۹۰ in counters |
 
 ---
 
-## Screenshots
-
-All captured from the documented CLI output (regenerate with `scripts/make-cli-screenshots.py` in the portfolio repo):
-
-| Vault & secrets | Generators |
-|:---:|:---:|
-| ![Vault and secrets](docs/screenshot-1.png) | ![Password and passphrase generators](docs/screenshot-2.png) |
-| **TOTP (2FA)** | **Health & audit** |
-| ![TOTP codes](docs/screenshot-3.png) | ![Health report and security audit](docs/screenshot-4.png) |
-
----
-
-## Quick Start
-
-```bash
-# 1. Create a new vault
-localsecretvault init
-
-# 2. Add your first secret
-localsecretvault add Login --name "GitHub" --username "you@email.com" --password "s3cret" --url "https://github.com"
-
-# 3. List all secrets (no values shown)
-localsecretvault list
-
-# 4. Copy a password to clipboard
-localsecretvault get GitHub --field password --copy
-
-# 5. Lock when done
-localsecretvault lock
-```
-
----
-
-## CLI Reference
-
-### Vault Management
-
-```bash
-localsecretvault init          # Create a new vault
-localsecretvault unlock        # Unlock with master password
-localsecretvault lock          # Lock the vault
-localsecretvault status        # Show vault status and metadata
-```
-
-### Secret Operations
-
-```bash
-# Add
-localsecretvault add Login --name "MyApp" --username "admin" --password "secret" --url "https://myapp.com"
-localsecretvault add "API Key" --name "Stripe" --password "sk_live_xxx" --tags "payments,production"
-localsecretvault add "Secure Note" --name "Recovery Codes" --notes "ABC-123-XYZ"
-
-# Retrieve
-localsecretvault get MyApp                       # Show all fields
-localsecretvault get MyApp --field username       # Show specific field
-localsecretvault get MyApp --field password --copy # Copy to clipboard
-
-# Edit
-localsecretvault edit MyApp --password "new_password" --username "new_user"
-
-# TOTP support
-localsecretvault add Login --name "AWS" --totp "JBSWY3DPEHPK3PXP"   # Add with TOTP secret
-localsecretvault add Login --name "Google" --gen-totp               # Generate new TOTP secret
-localsecretvault totp AWS                                            # Show current 2FA code
-localsecretvault edit AWS --clear-totp                               # Remove TOTP secret
-
-# Delete
-localsecretvault delete MyApp          # With confirmation
-localsecretvault delete MyApp --yes    # Skip confirmation
-
-# List & Search
-localsecretvault list                          # All secrets
-localsecretvault list --type Login             # Filter by type
-localsecretvault list --tag production         # Filter by tag
-localsecretvault search github                 # Search metadata
-```
-
-### Secret Types
-
-| Type | Example Use |
-|:-----|:------------|
-| `Login` | Website accounts, email, SSH |
-| `API Key` | Stripe, AWS, Twilio keys |
-| `Database` | PostgreSQL, MongoDB, Redis |
-| `SSH Key` | Server SSH credentials |
-| `Secure Note` | Recovery codes, MNEMONIC phrases |
-| `Environment` | `.env` variable sets |
-| `Generic Secret` | Anything else |
-
-### Password Generator
-
-```bash
-localsecretvault generate                       # 20-char default
-localsecretvault generate --length 32           # Custom length
-localsecretvault generate --count 5             # Multiple passwords
-localsecretvault generate --no-ambiguous        # No 0OIl1 characters
-localsecretvault generate --length 64 --copy    # Generate and copy
-```
-
-### Passphrase Generator
-
-```bash
-localsecretvault passphrase                            # 5 words + number
-localsecretvault passphrase --words 7                  # More words, more entropy
-localsecretvault passphrase --capitalize --no-number   # TitleCase words
-localsecretvault passphrase --separator "." --words 4  # Custom separator
-```
-
-### Strength Analysis & Password Health
-
-```bash
-# Analyze any password without storing it
-localsecretvault strength "MyP@ssw0rd123"
-localsecretvault strength                               # Prompts securely (hidden input)
-
-# Full health report: weak, reused, and stale passwords
-localsecretvault health
-```
-
-```text
-Password health report — 4 password(s) across 5 secret(s)
-
-  Weak passwords (1)
-┌──────┬────────┬─────────────────────────────────┐
-│ Name │ Score  │ Issues                          │
-├──────┼────────┼─────────────────────────────────┤
-│ Old  │ 1/4    │ Commonly used password          │
-└──────┴────────┴─────────────────────────────────┘
-  No reused passwords.
-  No stale passwords.
-```
-
-### TOTP (2FA Codes)
-
-```bash
-localsecretvault totp GitHub                  # Show current code with countdown
-localsecretvault totp GitHub --copy           # Copy code to clipboard
-localsecretvault copy GitHub --field totp     # Same via the copy command
-```
-
-### .env Integration
-
-```bash
-# Import from .env file into vault
-localsecretvault env-import .env --name "My App Config"
-
-# Export from vault to .env file (with plaintext warning)
-localsecretvault env-export .env --name "My App Config" --yes
-```
-
-### Backup & Restore
-
-```bash
-# Create encrypted backup
-localsecretvault backup ~/vault-backup.lsv
-
-# Restore from backup (safety backup created automatically)
-localsecretvault restore ~/vault-backup.lsv
-```
-
-### GitHub Integration
-
-> Requires [GitHub CLI](https://cli.github.com/) installed and authenticated.
-
-```bash
-# Push a secret to GitHub repository secrets
-localsecretvault github push --repo owner/repo --secret "Production API Key"
-
-# List GitHub repository secrets
-localsecretvault github import --repo owner/repo
-```
-
-### Security Audit
-
-```bash
-localsecretvault audit
-```
-
-```
-   LocalSecretVault Security Audit
-+-------------------------------------+
-| Check                 | Status      |
-|-----------------------+-------------|
-| Vault encryption      | OK          |
-| Vault integrity       | OK          |
-| File permissions      | OK          |
-| Configuration         | OK          |
-| Telemetry             | Disabled    |
-| Clipboard integration | Available   |
-| Password health       | OK          |
-| GitHub CLI            | Available   |
-+-------------------------------------+
-```
-
-The audit now includes a password-health summary (weak/reused/stale counts) when the vault is unlocked.
-
----
-
-## TUI (Terminal UI)
-
-```bash
-localsecretvault tui
-```
-
-### Keybindings
-
-| Key | Action |
-|:----|:-------|
-| `q` | Quit |
-| `l` | Lock vault |
-| `a` | Add new secret |
-| `r` | Refresh list |
-| `s` | Focus search |
-| `g` | Generate password |
-| `Enter` | View secret details |
-| `d` | Delete secret |
-| `c` | Copy password |
-| `t` | Show TOTP code |
-
----
-
-## Security
-
-### Cryptography
-
-| Component | Algorithm |
-|:----------|:----------|
-| **Key Derivation** | Argon2id (3 iterations, 64 MB memory, 4 threads) |
-| **Encryption** | AES-256-GCM (128-bit authentication tag) |
-| **Salt** | 32 bytes, cryptographically random |
-| **Nonce** | 12 bytes, cryptographically random |
-
-### Security Properties
-
-- ✅ Master password is **never stored** on disk
-- ✅ All secrets encrypted at rest with authenticated encryption
-- ✅ Wrong passwords produce generic "authentication failed" errors
-- ✅ Atomic file writes prevent corruption from crashes/interruptions
-- ✅ Secrets never printed in CLI output (shown as `********`)
-- ✅ TOTP codes generated locally — no authenticator app required to read them
-- ✅ Clipboard auto-clears after 30 seconds
-- ✅ File permissions enforced on Unix (vault: 600, config: 700)
-- ✅ No network requests, no telemetry, no analytics
-
-### Threat Model
-
-**Protected against:**
-- Brute-force attacks on the vault file (Argon2id is memory-hard)
-- Tampering with encrypted data (AES-GCM authentication)
-- Accidental secret disclosure in CLI output
-- Data loss from process interruption (atomic writes)
-
-**Not protected against:**
-- Malware/keyloggers on your machine
-- Physical access to an unlocked machine
-- Weak master passwords (use a strong, unique password)
-- Clipboard snooping during the 30-second window
-
-See [SECURITY.md](SECURITY.md) for the complete security documentation.
-
----
-
-## Syncing Your Vault
-
-The vault (`vault.lsv`) is a single encrypted file — sync it with whatever you already use:
-
-| Method | How |
-|:-------|:----|
-| **Git** | Commit the vault to a private repo |
-| **Syncthing** | Peer-to-peer encrypted sync |
-| **Cloud Storage** | Dropbox, OneDrive, Google Drive |
-| **Physical** | USB drive, external HDD |
-| **Network** | NAS, SSH, rsync |
-
-> Only the encrypted file is synced. Plaintext secrets never leave your machine.
-
----
-
-## Configuration
-
-Vault and config are stored in platform-appropriate locations:
-
-| OS | Path |
-|:---|:-----|
-| **Linux** | `~/.config/localsecretvault/` |
-| **macOS** | `~/Library/Application Support/localsecretvault/` |
-| **Windows** | `%APPDATA%\localsecretvault\` |
-
----
-
-## Development
-
-```bash
-git clone https://github.com/mohammadhossein-asadi/LocalSecretVault.git
-cd LocalSecretVault
-pip install -e ".[dev]"
-
-# Run tests
-pytest
-
-# Lint
-ruff check src/ tests/
-
-# Type check
-mypy src/
-```
+## 🏗️ Architecture
+
+### Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Language** | Python 3.9+ |
+| **CLI Framework** | Click 8.1 |
+| **TUI Framework** | Textual (Rich-based) |
+| **Encryption** | cryptography (AES-GCM, Argon2id) |
+| **Validation** | Pydantic 2.7 |
+| **Serialization** | msgpack / JSON |
+| **Clipboard** | pyperclip |
+| **Fuzzy Search** | rapidfuzz |
+| **Testing** | pytest + pytest-asyncio |
+| **Packaging** | setuptools / pyinstaller |
 
 ### Project Structure
 
 ```
 LocalSecretVault/
-├── src/localsecretvault/
-│   ├── cli/              # Typer CLI (24 commands)
-│   ├── tui/              # Textual terminal UI
-│   ├── crypto/           # Argon2id + AES-256-GCM
-│   ├── models/           # Secret data models (7 types)
-│   ├── vault/            # Vault manager, CRUD, search, health
-│   ├── storage/          # Atomic file I/O
-│   ├── services/         # Generator, passphrase, TOTP, strength, .env, backup, GitHub
-│   ├── config/           # Platform configuration
-│   └── utils/            # Signal handling
-├── tests/                # 224 tests
-│   ├── test_crypto.py    # Crypto roundtrips, corruption, format
-│   ├── test_vault.py     # CRUD, search, auto-lock, persistence
-│   ├── test_health.py    # Weak/reused/stale detection, age tracking
-│   ├── test_totp.py      # RFC 6238 vectors, drift, verification
-│   ├── test_strength.py  # Scoring, patterns, entropy
-│   ├── test_passphrase.py # Wordlist, entropy, options
-│   ├── test_cli.py       # Core CLI via Typer test runner
-│   ├── test_cli_features.py # New command tests
-│   ├── test_generator.py # Character classes, entropy
-│   ├── test_env.py       # Parsing, import/export
-│   ├── test_backup.py    # Backups, restore, safety copies
-│   └── test_security.py  # Leakage, permissions, integrity
+├── src/
+│   └── localsecretvault/
+│       ├── __init__.py
+│       ├── __main__.py              # Entry point
+│       ├── cli.py                   # Click CLI
+│       ├── tui/
+│       │   ├── __init__.py
+│       │   ├── app.py               # Textual app
+│       │   ├── screens/             # TUI screens
+│       │   │   ├── vault_list.py
+│       │   │   ├── secret_view.py
+│       │   │   ├── secret_form.py
+│       │   │   ├── search.py
+│       │   │   └── settings.py
+│       │   └── widgets/             # Custom widgets
+│       ├── crypto/
+│       │   ├── __init__.py
+│       │   ├── encryption.py        # AES-GCM + Argon2id
+│       │   ├── vault.py             # Vault file format
+│       │   └── keys.py              # Key management
+│       ├── models/
+│       │   ├── __init__.py
+│       │   ├── secret.py            # Secret data model
+│       │   ├── category.py
+│       │   ├── vault.py
+│       │   └── config.py
+│       ├── storage/
+│       │   ├── __init__.py
+│       │   ├── file.py              # File vault storage
+│       │   └── git.py               # Git sync
+│       ├── import_export/
+│       │   ├── __init__.py
+│       │   ├── bitwarden.py
+│       │   ├── onepassword.py
+│       │   ├── keepass.py
+│       │   ├── csv.py
+│       │   └── json.py
+│       ├── utils/
+│       │   ├── __init__.py
+│       │   ├── clipboard.py
+│       │   ├── fuzzy.py
+│       │   ├── persian.py
+│       │   └── config.py
+│       └── config/
+│           ├── __init__.py
+│           └── defaults.py
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── fixtures/
+├── docs/
+│   ├── SECURITY.md
+│   ├── TUI_GUIDE.md
+│   ├── CLI_REFERENCE.md
+│   ├── SYNC_GUIDE.md
+│   └── PERSIAN.md
 ├── pyproject.toml
-├── SECURITY.md
+├── README.md
+├── README.fa.md
 ├── LICENSE
-└── README.md
+├── CHANGELOG.md
+└── CONTRIBUTING.md
 ```
 
 ---
 
-## Testing
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Python** 3.9+
+- **pip** / **pipx** / **uv**
+
+### Installation
 
 ```bash
-pytest                     # Run all 224 tests
-pytest tests/test_crypto.py  # Crypto tests only
-pytest -v                  # Verbose output
+# From PyPI (recommended)
+pip install local-secret-vault
+
+# Or with pipx (isolated)
+pipx install local-secret-vault
+
+# Or from source
+git clone https://github.com/mohammadhossein-asadi/LocalSecretVault.git
+cd LocalSecretVault
+pip install -e .
 ```
 
-**Test coverage:**
-- **Crypto:** Encryption/decryption roundtrips, wrong password, corruption, format validation
-- **Vault:** Full CRUD, search, tags, auto-lock, persistence across lock/unlock cycles
-- **CLI:** All commands via Typer test runner
-- **Generator:** Character classes, entropy, edge cases
-- **.env:** Parsing, import/export, quoted values, special characters
-- **Backup:** Create, restore, corrupted backup rejection, safety backup
-- **TOTP:** RFC 6238 test vectors, time drift, verification, provisioning URIs
-- **Strength:** Pattern detection (sequences, keyboard walks, repeats, dates), entropy, scoring
-- **Passphrase:** Wordlist integrity, entropy math, option combinations
-- **Health:** Weak/reused/stale detection, password age tracking, backward compatibility
-- **Security:** No secret leakage, file permission checks, vault integrity
+### Initialize Vault
+
+```bash
+# Create new vault
+lsv init ~/my-vault.lsv
+
+# Or specify path via env
+export LSV_VAULT_PATH=~/my-vault.lsv
+lsv init
+```
+
+### Basic Usage
+
+```bash
+# Add a secret
+lsv add github/token \
+  --value "ghp_xxxxxxxxxxxx" \
+  --category "API Keys" \
+  --tags "github,ci" \
+  --project "my-app"
+
+# List secrets
+lsv list
+lsv list --category "Database"
+lsv list --project "my-app" --tag "prod"
+
+# Get secret value (copies to clipboard)
+lsv get github/token
+
+# Get specific field
+lsv get aws/secret_key --field value
+
+# Search
+lsv search "production"
+
+# Edit secret
+lsv edit github/token --value "ghp_new..."
+
+# Delete
+lsv remove github/token
+
+# Export for CI/CD
+lsv export my-project --format dotenv > .env.local
+lsv export my-project --format json | jq -r '.[] | "export \(.name)=\(.value)"'
+
+# Shell environment injection
+eval $(lsv env my-project --export)
+```
+
+### Git Sync
+
+```bash
+# Initialize git repo for vault
+lsv git init ~/my-vault.lsv
+
+# Commit changes
+lsv git commit -m "Add production DB credentials"
+
+# Push to remote
+lsv git push origin main
+
+# Pull latest
+lsv git pull origin main
+```
 
 ---
 
-## License
+## ⚙️ Configuration
 
-[MIT License](LICENSE) — use it however you want.
+Create `~/.config/lsv/config.toml`:
+
+```toml
+[vault]
+default_path = "~/vault.lsv"
+auto_lock_timeout = 300        # Seconds (0 = never)
+clipboard_clear_timeout = 30   # Seconds
+
+[ui]
+theme = "tokyo-night"          # dracula, tokyo-night, catppuccin, auto
+persian_numbers = true
+jalali_dates = true
+rtl = true
+fuzzy_threshold = 0.6
+
+[security]
+argon2_memory = 65536          # KB (64 MB)
+argon2_iterations = 3
+argon2_parallelism = 4
+clipboard_clear = true
+mask_values = true             # Show **** in list view
+
+[git]
+auto_commit = true
+commit_message_template = "LSV: {action} {count} secrets"
+sign_commits = false
+
+[sync]
+conflict_strategy = "prompt"   # prompt, ours, theirs, merge
+backup_on_sync = true
+```
+
+---
+
+## 🛠️ Development
+
+### Setup
+
+```bash
+git clone https://github.com/mohammadhossein-asadi/LocalSecretVault.git
+cd LocalSecretVault
+
+python -m venv .venv
+source .venv/bin/activate
+
+pip install -e ".[dev]"
+
+pre-commit install
+```
+
+### Commands
+
+```bash
+# Run TUI
+lsv
+
+# Run CLI
+lsv --help
+
+# Tests
+pytest
+
+# Coverage
+pytest --cov=localsecretvault --cov-report=html
+
+# Type check
+mypy src/localsecretvault
+
+# Lint
+ruff check src/
+ruff format src/
+
+# Build executable
+pyinstaller --onefile src/localsecretvault/__main__.py -n lsv
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Unit tests
+pytest tests/unit -v
+
+# Integration tests
+pytest tests/integration -v
+
+# Security tests
+pytest tests/security -v
+
+# All tests
+pytest
+```
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Security Model](docs/SECURITY.md) | Encryption, threat model |
+| [TUI Guide](docs/TUI_GUIDE.md) | Keyboard shortcuts, workflows |
+| [CLI Reference](docs/CLI_REFERENCE.md) | All commands |
+| [Sync Guide](docs/SYNC_GUIDE.md) | Git, cloud, team workflows |
+| [Persian Support](docs/PERSIAN.md) | RTL, dates, numbers |
+
+---
+
+## 🔒 Security Model
+
+### Threat Model
+
+| Threat | Mitigation |
+|--------|------------|
+| Vault file stolen | Argon2id + AES-256-GCM — infeasible to brute force |
+| Master password keylogged | TUI masking, clipboard auto-clear |
+| Memory dump | Keys zeroed after use, `mlock` where available |
+| Supply chain attack | Minimal deps, pinned versions, sigstore verification |
+| Sync interception | Vault always encrypted, Git transport encrypted (SSH/HTTPS) |
+
+### Audit
+
+- **Cryptography** — Uses `cryptography` library (audited, FIPS-validated)
+- **Argon2id** — Winner of Password Hashing Competition
+- **AES-GCM** — NIST-approved authenticated encryption
+- **No custom crypto** — Only standard primitives
+
+---
+
+## 🤝 Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+---
+
+## 📋 Roadmap
+
+- [x] Core encryption (AES-GCM + Argon2id)
+- [x] Vault file format
+- [x] CLI (add, get, list, search, export)
+- [x] TUI (Rich/Textual)
+- [x] Git sync
+- [x] Import (Bitwarden, 1Password, KeePass, CSV)
+- [x] Persian RTL support
+- [ ] GUI (Tauri)
+- [ ] Browser extension
+- [ ] SSH agent integration
+- [ ] Team sharing (Shamir's Secret Sharing)
+- [ ] Hardware key support (YubiKey, Nitrokey)
+- [ ] Plugin system
+
+---
+
+## 📄 License
+
+**MIT License** — See [LICENSE](LICENSE)
+
+---
+
+## 🙏 Acknowledgments
+
+- **cryptography** — Python crypto by PyCA
+- **Rich/Textual** — Terminal UI by Textualize
+- **Click** — CLI by Pallets
+- **Pydantic** — Validation by Samuel Colvin
+- **Argon2** — Password hashing competition winner
+- **Vazirmatn Font** — Persian typography by Rastikerdar
+
+---
+
+## 📞 Support & Community
+
+- **Issues**: [GitHub Issues](https://github.com/mohammadhossein-asadi/LocalSecretVault/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/mohammadhossein-asadi/LocalSecretVault/discussions)
+- **PyPI**: [local-secret-vault](https://pypi.org/project/local-secret-vault/)
 
 ---
 
 <div align="center">
 
-**Mohammadhossein Asadi** — Frontend & Full-Stack Engineer
+**Built with ❤️ for developers who own their secrets**
 
-[![GitHub](https://img.shields.io/badge/GitHub-mohammadhossein--asadi-0a0a0a?style=flat-square&logo=github)](https://github.com/mohammadhossein-asadi)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-mohammadhossein--asadi-0a66c2?style=flat-square&logo=linkedin)](https://linkedin.com/in/mohammadhossein-asadi)
+[🇬🇧 English](README.md) • [🇮🇷 فارسی](README.fa.md) • [⭐ Star us on GitHub](https://github.com/mohammadhossein-asadi/LocalSecretVault)
 
 </div>
